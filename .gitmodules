@@ -1,0 +1,3 @@
+[submodule "Android/SDKs/SalesForce"]
+	path = Android/SDKs/SalesForce
+	url = https://github.com/forcedotcom/SalesforceMobileSDK-Android.git
