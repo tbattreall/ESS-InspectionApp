@@ -40,6 +40,12 @@ import com.salesforce.androidsdk.ui.SalesforceDroidGapActivity;
 public class FasTrackHybridApp extends ForceApp {
 
 	@Override
+	public void onCreate() {
+		super.onCreate();
+		ForceApp.APP.getLoginServerManager().useSandbox();
+	}
+	
+	@Override
 	public Class<? extends Activity> getMainActivityClass() {
 		return SalesforceDroidGapActivity.class;
 	}
