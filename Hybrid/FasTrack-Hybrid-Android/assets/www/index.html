@@ -4,6 +4,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0; user-scalable=no" />
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
 
+	<!-- include custom css -->
+	<link rel="stylesheet" href="default.css" />
+	
     <!-- include jquery mobile -->
     <link rel="stylesheet" href="jquery/jquery.mobile-1.0b2.min.css" />
     <script src="jquery/jquery-1.6.2.min.js"></script>
@@ -21,6 +24,10 @@
     <!-- include forcetk for REST transaction support -->
     <script src="forcetk.js"></script>    
 
+	<script src="http://maps.google.com/maps/api/js?sensor=true"></script>
+	<script src="jquery.dataTables.min.js"></script>
+	<link href="http://datatables.net/release-datatables/media/css/demo_table.css" rel="stylesheet" />
+	 
     <!-- log window styling -->
     <style>
       .logWindow {display:none; width:700px;}
@@ -90,6 +97,7 @@
         forcetkClient.setUserAgentString(credsData.userAgent);
         
         fetchStores();
+        loadPosition();
     }
 
 
@@ -104,17 +112,61 @@
 
   </head>
   <body>
-      <div data-role="page" data-theme="b" id="jqm-home"> 
-          <div  data-role="header"> 
-              <h1>FasTrack Hybrid</h1> 
-          </div> 
-
-          <div id="#content" data-role="content"> 
-              <p><a href="#" id="link_logout" data-role="button" data-inline="true">Logout</a></p>
-              
-              <div id="div_stores_list"></div>
-          </div> 
-
-      </div> 
-  </body>
+        <!-- Home -->
+        <div data-role="page" id="page1" data-theme="b">
+            <div data-role="header">
+                <h1 style="width:100%;margin:0;">
+                   <table style="width:100%">
+                   <tr>
+                   		<td><p style="center;margin:0;">FasTrack Mobile Hybrid</p></td>
+                   		<td style="align:right; width:5em"><p style="center;margin:0;"><a href="#" id="link_logout" data-role="button" data-inline="true">Logout</a></p></td>
+                   </tr>
+                   </table>
+                </h1>
+            </div>
+            <div data-role="content">
+                <div data-role="collapsible" data-theme="b" data-content-theme="b" data-mini="true" 
+                	data-collapsed-icon="arrow-r" data-expanded-icon="arrow-d" data-collapsed="false">
+   					<h3>Stores</h3>
+   					<table cellpadding="0" cellspacing="0" border="0" id="stores_table" width="100%">
+						<thead><tr>
+							<th width="20%">Number</th>
+							<th width="60%">Name</th>
+							<th width="20%">Location</th>		
+						</tr></thead>
+						<tbody></tbody>
+					</table>
+				</div>
+			 <div class="ui-grid-a" style="margin:0.5em;width:100%;">
+                    <div class="ui-block-a">
+                        <ul data-role="listview" data-divider-theme="b" data-inset="true">
+                            <li data-role="list-divider" role="heading">
+                                Cached Stores
+                            </li>
+                            <li data-theme="c">
+                                <a href="#" data-transition="slide">
+                                    Store 0101
+                                </a>
+                            </li>
+                            <li data-theme="c">
+                                <a href="#" data-transition="slide">
+                                    Store 0102
+                                </a>
+                            </li>
+                            <li data-theme="c">
+                                <a href="#" data-transition="slide">
+                                    Store 0103
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="ui-block-b">
+                        <div id="geo-map" style="margin:0.5em">
+            				<img src="http://maps.google.com/maps/api/staticmap?center=37.4419,-94.1419&zoom=3&size=680x278&sensor=true"/>
+          				</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
 </html>
