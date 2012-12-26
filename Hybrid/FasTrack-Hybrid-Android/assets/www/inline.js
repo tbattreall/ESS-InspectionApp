@@ -44,6 +44,13 @@ function goToLocation(latitude, longitude){
   map.setZoom(12);
 }
 
+function addCachedStore(number){
+    if(number==null) number = "No number";
+    var newLi = $j("<li><a href='#'>" + "Store " + number + "</a></li>");
+    $j("#ul_cached_stores").append(newLi);
+    $j("#ul_cached_stores").listview('refresh');
+}
+
 function onSuccessFetchStores(response){
     var $j = jQuery.noConflict();
     cordova.require("salesforce/util/logger").logToConsole("onSuccessSfdcContacts: received " + response.totalSize + " stores");
@@ -59,7 +66,7 @@ function onSuccessFetchStores(response){
 		"bSearchable": false,
 		"bSortable": false,
 		"mRender" : function(data, type, row) {
-			return '<a href="#" onclick="goToLocation(\''+row.geo_latitude__c+'\',\''+row.geo_longitude__c+'\')">Locate</a>';
+			return '<a href="#" onclick="goToLocation(\''+row.geo_latitude__c+'\',\''+row.geo_longitude__c+'\')">Locate</a> <a href="#" onclick="addCachedStore(\''+row.Site_Number__c+'\')">Cache</a>';
 		}
 	}];
 	//tableData.sScrollY = "10em";
