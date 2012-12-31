@@ -8,9 +8,9 @@
 	<link rel="stylesheet" href="default.css" />
 	
     <!-- include jquery mobile -->
-    <link rel="stylesheet" href="jquery/jquery.mobile-1.0b2.min.css" />
-    <script src="jquery/jquery-1.6.2.min.js"></script>
-    <script src="jquery/jquery.mobile-1.0b2.min.js"></script>
+    <link rel="stylesheet" href="jquery/jquery.mobile-1.2.0.min.css" />
+    <script src="jquery/jquery-1.8.3.min.js"></script>
+    <script src="jquery/jquery.mobile-1.2.0.min.js"></script>
         
     <!-- Include cordova. -->
 	<script src="cordova-2.2.0.js"></script>
@@ -117,56 +117,71 @@
     <script src="inline.js"></script>       
 
   </head>
-  <body>
-        <!-- Home -->
-        <div data-role="page" id="page1" data-theme="c">
-            <div data-role="header" data-position="fixed" data-theme="c">
-	            <h1>FasTrack Mobile Hybrid</h1>
-				<a href="#" data-role="button" class="ui-btn-right" id="link_logout" data-theme="c">Logout</a>
-            </div>
-            <div data-role="content" data-theme="c">
-                <div data-role="collapsible" data-theme="c" data-content-theme="c" data-mini="true" 
-                	data-collapsed-icon="arrow-r" data-expanded-icon="arrow-d" data-collapsed="false">
-   					<h3>Stores</h3>
-   					<table cellpadding="0" cellspacing="0" border="0" id="stores_table" width="100%">
-						<thead><tr>
-							<th width="20%">Number</th>
-							<th width="60%">Name</th>
-							<th width="20%">Actions</th>		
-						</tr></thead>
+<body>
+	<!-- Home -->
+	<div data-role="page" id="page1" data-theme="c">
+		<div data-role="header" data-position="fixed" data-theme="c">
+			<h1>FasTrack Mobile Hybrid</h1>
+			<a href="#" data-role="button" class="ui-btn-right" id="link_logout"
+				data-theme="c">Logout</a>
+		</div>
+		<div data-role="content" data-theme="c">
+			<div class="content-primary">
+				<span id="temp_data"></span>
+				<div class="ui-grid-a" style="width: 100%;">
+					<div class="ui-block-a" style="width: 30%;">
+						<ul data-role="listview" data-divider-theme="c" data-inset="true"
+							id="ul_cached_stores">
+							<li data-role="list-divider" role="heading">Cached Stores</li>
+						</ul>
+					</div>
+					<div class="ui-block-b" style="width: 70%;">
+						<div id="geo-map" style="margin: 0.5em">
+							<img
+								src="http://maps.google.com/maps/api/staticmap?center=37.4419,-94.1419&zoom=3&size=680x278&sensor=true" />
+						</div>
+					</div>
+				</div>
+				<div data-role="popup" id="popupRemoveStoreDialog"
+					class="ui-corner-all">
+					<div data-role="header" class="ui-corner-top">
+						<h1>Remove Store From Cache?</h1>
+					</div>
+					<div data-role="content" >
+						<h3 class="ui-title">Are you sure you want to remove this
+							store from the cache?</h3>
+						<p>You will no longer be able to access store information
+							offline if you continue.</p>
+						<div class="ui-grid-a" style="margin: 0.5em; width: 100%;">
+							<div class="ui-block-a">
+								<a data-role="button" data-rel="back" data-theme="c">Cancel</a>
+							</div>
+							<div class="ui-block-b">
+								<a href="#" data-role="button" data-rel="back" onclick="removeCachedStore()" 
+									data-transition="flow" data-theme="c">Delete</a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div data-role="collapsible" data-theme="c" data-content-theme="c"
+					data-mini="true" data-collapsed-icon="arrow-r"
+					data-expanded-icon="arrow-d" data-collapsed="false">
+					<h3>Stores</h3>
+					<ul id="test" data-role="listview"></ul>
+					<table cellpadding="0" cellspacing="0" border="0" id="stores_table"
+						width="100%">
+						<thead>
+							<tr>
+								<th width="20%">Number</th>
+								<th width="60%">Name</th>
+								<th width="20%">Actions</th>
+							</tr>
+						</thead>
 						<tbody></tbody>
 					</table>
 				</div>
-			 <div class="ui-grid-a" style="margin:0.5em;width:100%;">
-                    <div class="ui-block-a">
-                        <ul data-role="listview" data-divider-theme="c" data-inset="true" id="ul_cached_stores">
-                            <li data-role="list-divider" role="heading">
-                                Cached Stores
-                            </li>
-                            <li data-theme="c">
-                                <a href="#" data-transition="slide">
-                                    Store 0101
-                                </a>
-                            </li>
-                            <li data-theme="c">
-                                <a href="#" data-transition="slide">
-                                    Store 0102
-                                </a>
-                            </li>
-                            <li data-theme="c">
-                                <a href="#" data-transition="slide">
-                                    Store 0103
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="ui-block-b">
-                        <div id="geo-map" style="margin:0.5em">
-            				<img src="http://maps.google.com/maps/api/staticmap?center=37.4419,-94.1419&zoom=3&size=680x278&sensor=true"/>
-          				</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </body>
+			</div>
+		</div>
+	</div>
+</body>
 </html>

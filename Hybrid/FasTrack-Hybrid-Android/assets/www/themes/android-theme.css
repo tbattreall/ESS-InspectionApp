@@ -380,7 +380,6 @@ body.android {
   body.android .ui-body-c .ui-link:visited {
     color: #2489ce; }
   body.android .ui-btn-up-c {
-    border: 1px solid #cccccc;
     background: #cecece;
     font-weight: bold;
     color: #333333;
