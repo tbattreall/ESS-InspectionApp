@@ -6,10 +6,27 @@ function regLinkClickHandlers() {
              var sfOAuthPlugin = cordova.require("salesforce/plugin/oauth");
              sfOAuthPlugin.logout();
              });
+    
+    $j('#cached_stores').click(function() {
+        logToConsole("cached_stores clicked");
+        $j('#search_stores_div').hide('fast', function() {
+        	 $j('#cached_stores').css("ui-btn-active ui-state-persist");
+             $j('#search_stores').css("");
+        	$j('#cached_stores_div').show('30');
+         });
+    });
+    $j('#search_stores').click(function() {
+        logToConsole("search_stores clicked");
+        $j('#cached_stores_div').hide('fast', function() {
+        	$j('#cached_stores').css("");
+            $j('#search_stores').css("ui-btn-active ui-state-persist");
+        	$j('#search_stores_div').show('30');
+         });
+    });
 }
 
 function fetchStores(){
-    forcetkClient.query("SELECT Site_Number__c,Name,geo_latitude__c,geo_longitude__c,Direct_Dial_Phone__c,Site_Address_Line1__c,Site_City__c,Site_State_Province__c,Site_Zip_Code__c FROM Site__c WHERE Site_Number__c<>null LIMIT 200", onSuccessFetchStores, onErrorSfdc); 
+    forcetkClient.query("SELECT Site_Number__c,Name,geo_latitude__c,geo_longitude__c,Direct_Dial_Phone__c,Site_Address_Line1__c,Site_City__c,Site_State_Province__c,Site_Zip_Code__c FROM Site__c WHERE Site_Number__c<>null and (geo_latitude__c>0 or geo_longitude__c>0) LIMIT 200", onSuccessFetchStores, onErrorSfdc); 
 }
 
 var map = null;
@@ -82,7 +99,7 @@ function onSuccessFetchStores(response){
     var $j = jQuery.noConflict();
     cordova.require("salesforce/util/logger").logToConsole("onSuccessSfdcContacts: received " + response.totalSize + " stores");
     
-    var tableData = {};
+    /*var tableData = {};
 	tableData.aaData = response.records;
 	tableData.aoColumns = [{
 		"mData" : "Site_Number__c"
@@ -100,17 +117,29 @@ function onSuccessFetchStores(response){
 	//tableData.sScrollY = "10em";
 	tableData.sScrollX = "100%";
 	
-	$j('#stores_table').dataTable(tableData);
+	$j('#stores_table').dataTable(tableData);*/
 	
-//	var list = "";
-//    
-//    $j.each( response.records, function( i, item ) {
-//        list += '<li><a href="#">' + item.Site_Number__c + '</a></li>';
-//        });
-//    
-// 
-//    $j('#test').empty().append( list ).listview("refresh");
-	
+	var list = "";
+    $j.each( response.records, function( i, item ) {
+    	addStoreInMap(item);
+    	list += '<li><a href="#" onclick="goToLocation(\''+item.geo_latitude__c+'\',\''+item.geo_longitude__c+'\')">' + item.Site_Number__c +' '+ item.Name + '</a><a href="#" onclick="addCachedStore(\''+item.Site_Number__c+'\')">Cache</a></li>';
+        });
+    $j('#ul_searched_stores').empty().append( list ).listview("refresh");
+    //for quick.pagination plugin
+    //$j("#ul_searched_stores").quickPagination({pageSize:"5"});
+    $j("#search_stores_div").pajinate({
+		nav_label_first : '<<',
+		nav_label_last : '>>',
+		show_first_last: false,
+		nav_label_prev : 'Prev',
+		nav_label_next : 'Next',
+		num_page_links_to_display : 4,
+		items_per_page : 4,
+		item_container_id : '#ul_searched_stores',
+		nav_panel_id : '#search_page_navigation'
+	});
+    
+    cordova.require("salesforce/util/logger").logToConsole("onSuccessSfdcContacts: finish loading " + response.totalSize + " stores");
 }
 
 function onErrorSfdc(error) {
