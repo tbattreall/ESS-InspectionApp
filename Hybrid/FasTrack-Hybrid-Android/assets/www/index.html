@@ -26,6 +26,7 @@
 
 	<script src="http://maps.google.com/maps/api/js?sensor=true"></script>
 	<script src="jquery.pajinate.js"></script>
+	<script src="ICanHaz.min.js"></script>
 	 
 	 <link rel="stylesheet" href="themes/android-theme.css" />
 	<script type="text/javascript">
@@ -112,6 +113,16 @@
         
     </script>
         
+        
+    <script id="mapInfoWindow" type="text/html">
+		<div>
+			<p>{{ number }} {{ name }}</p>
+		</div>
+    	<div>
+   			<a data-theme="c" data-shadow="true" data-role="button" data-inline="true" data-mini="true" onclick="addCachedStore('{{ number }}')">Add to Cache</a>
+    	</div>
+    </script>
+    
 	<!-- load our app-specific code -->
     <script src="inline.js"></script>       
 

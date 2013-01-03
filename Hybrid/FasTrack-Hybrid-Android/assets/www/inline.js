@@ -26,7 +26,7 @@ function regLinkClickHandlers() {
 }
 
 function fetchStores(){
-    forcetkClient.query("SELECT Site_Number__c,Name,geo_latitude__c,geo_longitude__c,Direct_Dial_Phone__c,Site_Address_Line1__c,Site_City__c,Site_State_Province__c,Site_Zip_Code__c FROM Site__c WHERE Site_Number__c<>null and (geo_latitude__c>0 or geo_longitude__c>0) LIMIT 200", onSuccessFetchStores, onErrorSfdc); 
+    forcetkClient.query("SELECT Site_Number__c,Name,geo_latitude__c,geo_longitude__c,Direct_Dial_Phone__c,Site_Address_Line1__c,Site_City__c,Site_State_Province__c,Site_Zip_Code__c FROM Site__c WHERE Site_Number__c<>null and (geo_latitude__c>0 or geo_longitude__c>0)", onSuccessFetchStores, onErrorSfdc); 
 }
 
 var map = null;
@@ -65,16 +65,17 @@ function addStoreInMap(store){
       map: map
     });
     
-    //Instantiate an info window.        
-    var html = '<div>'+
-    '<p>'+store.Site_Number__c+' '+store.Name +
-    '</p></div>'+
-    '<div>'+
-    '<a class="ui-btn ui-shadow ui-btn-corner-all ui-mini ui-btn-inline ui-btn-up-c" data-theme="c" data-wrapperels="span" data-iconshadow="true" data-shadow="true" data-corners="true" data-role="button" data-inline="true" data-mini="true" onclick="addCachedStore(\''+store.Site_Number__c+'\')"><span class="ui-btn-inner ui-btn-corner-all"><span class="ui-btn-text">Add to Cache</span></span></a>'+
-    '</div>';
-    
+    var info_data = {
+            name: store.Name,
+            number: store.Site_Number__c
+          };
+
+    // Here's all the magic.
+    var info = ich.mapInfoWindow(info_data);
+    info = $j('#temp_data').append(info).trigger("create").html();
+    $j('#temp_data').empty();
     var infowindow = new google.maps.InfoWindow({
-        content: html
+        content: info
     });
     
     google.maps.event.addListener(marker, 'click', function() {
@@ -134,7 +135,7 @@ function onSuccessFetchStores(response){
 		nav_label_prev : 'Prev',
 		nav_label_next : 'Next',
 		num_page_links_to_display : 4,
-		items_per_page : 4,
+		items_per_page : 10,
 		item_container_id : '#ul_searched_stores',
 		nav_panel_id : '#search_page_navigation'
 	});
