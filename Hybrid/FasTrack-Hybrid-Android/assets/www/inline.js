@@ -20,7 +20,9 @@ function regLinkClickHandlers() {
         $j('#cached_stores_div').hide('fast', function() {
         	$j('#cached_stores').css("");
             $j('#search_stores').css("ui-btn-active ui-state-persist");
-        	$j('#search_stores_div').show('30');
+        	$j('#search_stores_div').show('30',function(){
+        		$j("#search_store_scroller").jScroll();
+        	});     	
          });
     });
     $j('#search_stores_input').bind("change", function(event, ui) {
@@ -80,14 +82,39 @@ function loadPosition(){
 	map.getDiv().style.border =  '1px solid #ccc';
 	map.getDiv().style.height = "29em";
 
-	navigator.geolocation.getCurrentPosition(showPosition);
+	navigator.geolocation.getCurrentPosition(showCurrentPosition);
 }
-
+var currentCoordinate = null;
 /**
  * Shows the position in the map
  */
-function showPosition(position) {
+function showCurrentPosition(position) {
+	currentCoordinate = position.coords;
+	cordova.require("salesforce/util/logger").logToConsole("Set current coordinate: " + currentCoordinate);
+	fetchStores();
 	goToLocation(position.coords.latitude, position.coords.longitude);
+}
+
+function distanceToCurrentLocation(lat1,lon1){
+	if(currentCoordinate){
+		var unit = "K";// K, M or N
+		var lat2 = currentCoordinate.latitude;
+		var lon2 = currentCoordinate.longitude;
+		var radlat1 = Math.PI * lat1/180
+		var radlat2 = Math.PI * lat2/180
+		var radlon1 = Math.PI * lon1/180
+		var radlon2 = Math.PI * lon2/180
+		var theta = lon1-lon2
+		var radtheta = Math.PI * theta/180
+		var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+		dist = Math.acos(dist)
+		dist = dist * 180/Math.PI
+		dist = dist * 60 * 1.1515
+		if (unit=="K") { dist = dist * 1.609344 }
+		if (unit=="N") { dist = dist * 0.8684 }
+		return dist
+	}
+	return 0;
 }
 
 function goToLocation(latitude, longitude){
@@ -120,6 +147,7 @@ function addStoreInMap(store){
     google.maps.event.addListener(marker, 'click', function() {
         infowindow.open(map,marker);
     });
+    cordova.require("salesforce/util/logger").logToConsole("Created marker for: " + store.Site_Number__c + "with the distance: "+distanceToCurrentLocation(store.geo_latitude__c,store.geo_longitude__c));
 }
 
 function addCachedStore(number){
@@ -148,11 +176,30 @@ function refreshListUI(cursor){
     var curPageEntries = cursor.currentPageOrderedEntries;
     navigator.smartstore.closeCursor(cursor);
     var list = "";
+    curPageEntries.sort(function(a,b){
+    		return distanceToCurrentLocation(a.geo_latitude__c,a.geo_longitude__c)-distanceToCurrentLocation(b.geo_latitude__c,b.geo_longitude__c);
+    	});
     $j.each(curPageEntries, function(i, item) {
         addStoreInMap(item);
         list += '<li><a href="#" onclick="goToLocation(\''+item.geo_latitude__c+'\',\''+item.geo_longitude__c+'\')">' + item.Site_Number__c +' '+ item.Name + '</a><a href="#" data-icon="add" onclick="addCachedStore(\''+item.Site_Number__c+'\')">Cache</a></li>';
         });
     $j('#ul_searched_stores').empty().append( list ).listview("refresh");
+    //for quick.pagination plugin
+    //$j("#ul_searched_stores").quickPagination({pageSize:"5"});
+    //for pajinate plugin
+   /* $j("#search_stores_div").pajinate({
+		nav_label_first : '<<',
+		nav_label_last : '>>',
+		show_first_last: false,
+		nav_label_prev : 'Prev',
+		nav_label_next : 'Next',
+		num_page_links_to_display : 4,
+		items_per_page : 4,
+		item_container_id : '#ul_searched_stores',
+		nav_panel_id : '#search_page_navigation'
+	});*/
+    $j("#search_store_scroller").jScroll();
+    cordova.require("salesforce/util/logger").logToConsole("onSuccessSfdcContacts: finish loading all stores");
 }
 
 function updateStoreList(){

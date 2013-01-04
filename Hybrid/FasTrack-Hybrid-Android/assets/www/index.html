@@ -25,7 +25,9 @@
     <script src="forcetk.js"></script>    
 
 	<script src="http://maps.google.com/maps/api/js?sensor=true"></script>
-	<script src="jquery.pajinate.js"></script>
+	
+	<script src="iScroll.js"></script>
+	<script src="jScroll.js"></script>
 	<script src="ICanHaz.min.js"></script>
 	 
 	 <link rel="stylesheet" href="themes/android-theme.css" />
@@ -102,8 +104,8 @@
         forcetkClient.setRefreshToken(credsData.refreshToken);
         forcetkClient.setUserAgentString(credsData.userAgent);
         
-        fetchStores();
         loadPosition();
+        //fetchStores();
     }
 
 
@@ -153,9 +155,13 @@
 						</div>
 						<div id="search_stores_div" style="display:none;">
 							<input type="search" name="search-mini" id="search_stores_input" value="" data-mini="true" />
+							<div id="search_store_scroller" class="wrapper">
+							<div class="scroller">
+							<!--<div id="search_page_navigation" class="page_navigation"></div>-->
 							<ul data-role="listview" data-divider-theme="c" data-inset="true"
 								id="ul_searched_stores">
 							</ul>
+							</div></div>
 						</div>
 					</div>
 					<div class="ui-block-b" style="width: 60%;">
