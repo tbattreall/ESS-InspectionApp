@@ -158,7 +158,7 @@ function refreshListUI(cursor){
 function updateStoreList(){
     //get the search string from the search view
     var search = $j('#search_stores_input').val();
-    var querySpec = navigator.smartstore.buildLikeQuerySpec("Name", "%"+search+"%", null, 50);
+    var querySpec = navigator.smartstore.buildLikeQuerySpec("Name", "%"+search+"%", null, 20);
     
     navigator.smartstore.querySoup(STORES_SOUP_NAME, querySpec, refreshListUI, logError);
 }
