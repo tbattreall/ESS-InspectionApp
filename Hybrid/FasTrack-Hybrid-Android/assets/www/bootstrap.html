@@ -12,6 +12,36 @@
         <style>
           .logWindow {display:none; width:700px;}
           .logWindow > p {padding:0px; margin:0px; word-wrap:break-word;}
+          .bggt {
+    		background: none repeat scroll 0 0 #B2CCE5;
+			}
+			#logo {
+			    margin: 35px auto auto;
+			    width: 300px;
+			    height: 150px;
+			    background: url("images/extra-space-storage-logo.png") no-repeat scroll 0% 0% transparent;
+			}
+			#logo2 {
+    			display: block;
+   		 		margin: 1em auto 0;
+    			width: 40%;
+    			max-width: 400px;
+			}
+			#content_title {
+			    color: rgb(112, 112, 112);
+			    font-size: 29px;
+			    margin: 25px auto auto;
+			    font-weight: bold;
+			    line-height: 130%;
+			    font-family: "Arial","Verdana","Helvetica","Tahoma","sans-serif";
+			    max-width: 200px;
+			    text-align: center;
+			}
+			.h1-b {
+    			color: rgb(91, 160, 29);
+    			font-size: 35px;
+    			font-style: italic;
+			}
         </style>
 
         <script>
@@ -29,25 +59,17 @@
                     alert(statusEvent.description);
                     location.reload();
                 } else {
-                    var statusDiv = document.getElementById("statusText");
-                    statusDiv.innerHTML = statusEvent.description;
+                   
                 }
             };
         </script>
     </head>
 
-    <body>
+    <body class="bggt">
         <div id="main">
-            <h1>Loading...</h1>
-            <fieldset id="errors" class="logWindow">
-                <legend>Errors</legend>
-            </fieldset>
-            <fieldset id="console" class="logWindow">
-                <legend>Debug Console</legend>
-            </fieldset>
-        </div>
-        <div id="status">
-            <div id="statusText">Loading...</div>
+            <div id="logo"></div>
+            <h1 id="content_title">Facility Asset Tracking <span class="h1-b">(FasTrack)</span> Mobile</h1>
+            <img id="logo2" src="images/salesforce-cloud-small2.png">
         </div>
     </body>
 </html>

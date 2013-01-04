@@ -29,6 +29,8 @@ package com.vertiba.fastrack;
 import android.app.Activity;
 
 import com.salesforce.androidsdk.app.ForceApp;
+import com.salesforce.androidsdk.app.ForceAppWithSmartStore;
+import com.salesforce.androidsdk.security.Encryptor;
 import com.salesforce.androidsdk.ui.SalesforceDroidGapActivity;
 
 
@@ -37,7 +39,7 @@ import com.salesforce.androidsdk.ui.SalesforceDroidGapActivity;
  * All Salesforce mobile app must extend ForceApp. 
  * ForceApp takes care of intializing the network http clients (among other things).
  */
-public class FasTrackHybridApp extends ForceApp {
+public class FasTrackHybridApp extends ForceAppWithSmartStore {
 
 	@Override
 	public void onCreate() {
@@ -52,6 +54,6 @@ public class FasTrackHybridApp extends ForceApp {
 	
 	@Override
 	protected String getKey(String name) {
-		return null;
+		return Encryptor.hash(name + "x;lksalk1jsadihh23lia;lsdhasd2", name + "112;kaslkxs0-12;skcxn1203ph");
 	}
 }

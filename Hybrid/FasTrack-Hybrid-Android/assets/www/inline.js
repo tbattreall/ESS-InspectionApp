@@ -23,10 +23,49 @@ function regLinkClickHandlers() {
         	$j('#search_stores_div').show('30');
          });
     });
+    $j('#search_stores_input').bind("change", function(event, ui) {
+        fetchStores();
+    });
+}
+
+var STORES_SOUP_NAME = "ct__storesSoup";
+
+function regOfflineSoups() {
+
+    // Registering soup 1 for storing stores
+    var indexesStores = [ {
+        path : "Name",
+        type : "string"
+    }, {
+        path : "Site_Number__c",
+        type : "string"
+    }, {
+        path : "Site_Address_Line1__c",
+        type : "string"
+    } ];
+    
+//    navigator.smartstore.removeSoup(STORES_SOUP_NAME, function(){
+//        SFHybridApp.logToConsole("Soup Removed: "+record);
+//        }, logError);
+
+    navigator.smartstore.registerSoup(STORES_SOUP_NAME, indexesStores,
+            function() {
+                SFHybridApp.logToConsole(STORES_SOUP_NAME + " Soup Registered")
+            }, logError);
+
 }
 
 function fetchStores(){
-    forcetkClient.query("SELECT Site_Number__c,Name,geo_latitude__c,geo_longitude__c,Direct_Dial_Phone__c,Site_Address_Line1__c,Site_City__c,Site_State_Province__c,Site_Zip_Code__c FROM Site__c WHERE Site_Number__c<>null and (geo_latitude__c>0 or geo_longitude__c>0)", onSuccessFetchStores, onErrorSfdc); 
+    navigator.smartstore.soupExists(STORES_SOUP_NAME, onStoreSoupExist, logError);
+}
+
+function onStoreSoupExist(exist){
+    if(exist){
+        updateStoreList();
+    } else {
+        forcetkClient.query("SELECT Site_Number__c,Name,geo_latitude__c,geo_longitude__c,Direct_Dial_Phone__c,Site_Address_Line1__c,Site_City__c,Site_State_Province__c,Site_Zip_Code__c FROM Site__c WHERE Site_Number__c<>null and (geo_latitude__c>0 or geo_longitude__c>0) LIMIT 200", onSuccessFetchStores, onErrorSfdc);
+        regOfflineSoups();
+    }
 }
 
 var map = null;
@@ -39,7 +78,7 @@ function loadPosition(){
 	          mapTypeId: google.maps.MapTypeId.ROADMAP
 	        });
 	map.getDiv().style.border =  '1px solid #ccc';
-	map.getDiv().style.height = "15em";
+	map.getDiv().style.height = "29em";
 
 	navigator.geolocation.getCurrentPosition(showPosition);
 }
@@ -100,47 +139,35 @@ function onSuccessFetchStores(response){
     var $j = jQuery.noConflict();
     cordova.require("salesforce/util/logger").logToConsole("onSuccessSfdcContacts: received " + response.totalSize + " stores");
     
-    /*var tableData = {};
-	tableData.aaData = response.records;
-	tableData.aoColumns = [{
-		"mData" : "Site_Number__c"
-	}, {
-		"mData" : "Name"
-	}, {
-		"mData" : "Name",
-		"bSearchable": false,
-		"bSortable": false,
-		"mRender" : function(data, type, row) {
-		    addStoreInMap(row);
-			return '<a href="#" onclick="goToLocation(\''+row.geo_latitude__c+'\',\''+row.geo_longitude__c+'\')">Locate</a> <a href="#" onclick="addCachedStore(\''+row.Site_Number__c+'\')">Cache</a>';
-		}
-	}];
-	//tableData.sScrollY = "10em";
-	tableData.sScrollX = "100%";
-	
-	$j('#stores_table').dataTable(tableData);*/
-	
-	var list = "";
-    $j.each( response.records, function( i, item ) {
-    	addStoreInMap(item);
-    	list += '<li><a href="#" onclick="goToLocation(\''+item.geo_latitude__c+'\',\''+item.geo_longitude__c+'\')">' + item.Site_Number__c +' '+ item.Name + '</a><a href="#" onclick="addCachedStore(\''+item.Site_Number__c+'\')">Cache</a></li>';
-        });
-    $j('#ul_searched_stores').empty().append( list ).listview("refresh");
-    //for quick.pagination plugin
-    //$j("#ul_searched_stores").quickPagination({pageSize:"5"});
-    $j("#search_stores_div").pajinate({
-		nav_label_first : '<<',
-		nav_label_last : '>>',
-		show_first_last: false,
-		nav_label_prev : 'Prev',
-		nav_label_next : 'Next',
-		num_page_links_to_display : 4,
-		items_per_page : 10,
-		item_container_id : '#ul_searched_stores',
-		nav_panel_id : '#search_page_navigation'
-	});
+    navigator.smartstore.upsertSoupEntries(STORES_SOUP_NAME,response.records, updateStoreList, logError);
     
     cordova.require("salesforce/util/logger").logToConsole("onSuccessSfdcContacts: finish loading " + response.totalSize + " stores");
+}
+
+function refreshListUI(cursor){
+    var curPageEntries = cursor.currentPageOrderedEntries;
+    navigator.smartstore.closeCursor(cursor);
+    var list = "";
+    $j.each(curPageEntries, function(i, item) {
+        addStoreInMap(item);
+        list += '<li><a href="#" onclick="goToLocation(\''+item.geo_latitude__c+'\',\''+item.geo_longitude__c+'\')">' + item.Site_Number__c +' '+ item.Name + '</a><a href="#" data-icon="add" onclick="addCachedStore(\''+item.Site_Number__c+'\')">Cache</a></li>';
+        });
+    $j('#ul_searched_stores').empty().append( list ).listview("refresh");
+}
+
+function updateStoreList(){
+    //get the search string from the search view
+    var search = $j('#search_stores_input').val();
+    var querySpec = navigator.smartstore.buildLikeQuerySpec("Name", "%"+search+"%", null, 50);
+    
+    navigator.smartstore.querySoup(STORES_SOUP_NAME, querySpec, refreshListUI, logError);
+}
+
+/**
+* Error Received
+**/
+function logError(error) {
+    SFHybridApp.logToConsole("Error: " + JSON.stringify(error,null,'<br>'));
 }
 
 function onErrorSfdc(error) {
