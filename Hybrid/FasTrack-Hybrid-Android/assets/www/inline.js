@@ -83,14 +83,40 @@ function loadPosition(){
 	var height = $(window).height();
 	map.getDiv().style.height = height - 60 + "px";
 
-	navigator.geolocation.getCurrentPosition(showPosition);
+	navigator.geolocation.getCurrentPosition(showCurrentPosition);
 }
 
+
+var currentCoordinate = null;
 /**
  * Shows the position in the map
  */
-function showPosition(position) {
+function showCurrentPosition(position) {
+	currentCoordinate = position.coords;
+	fetchStores();
 	goToLocation(position.coords.latitude, position.coords.longitude);
+}
+
+function distanceToCurrentLocation(lat1,lon1){
+	if(currentCoordinate){
+		var unit = "K";// K, M or N
+		var lat2 = currentCoordinate.latitude;
+		var lon2 = currentCoordinate.longitude;
+		var radlat1 = Math.PI * lat1/180
+		var radlat2 = Math.PI * lat2/180
+		var radlon1 = Math.PI * lon1/180
+		var radlon2 = Math.PI * lon2/180
+		var theta = lon1-lon2
+		var radtheta = Math.PI * theta/180
+		var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+		dist = Math.acos(dist)
+		dist = dist * 180/Math.PI
+		dist = dist * 60 * 1.1515
+		if (unit=="K") { dist = dist * 1.609344 }
+		if (unit=="N") { dist = dist * 0.8684 }
+		return dist
+	}
+	return 0;
 }
 
 function goToLocation(latitude, longitude){
@@ -152,6 +178,9 @@ function refreshListUI(cursor){
     var curPageEntries = cursor.currentPageOrderedEntries;
     navigator.smartstore.closeCursor(cursor);
     var list = "";
+    curPageEntries.sort(function(a,b){
+		return distanceToCurrentLocation(a.geo_latitude__c,a.geo_longitude__c)-distanceToCurrentLocation(b.geo_latitude__c,b.geo_longitude__c);
+	});
     $j.each(curPageEntries, function(i, item) {
         addStoreInMap(item);
         list += '<li><a href="#" onclick="goToLocation(\''+item.geo_latitude__c+'\',\''+item.geo_longitude__c+'\')">' + item.Site_Number__c +' '+ item.Name + '</a><a href="#" data-icon="add" onclick="addCachedStore(\''+item.Site_Number__c+'\')">Cache</a></li>';
