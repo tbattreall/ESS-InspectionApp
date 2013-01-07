@@ -106,8 +106,8 @@
         forcetkClient.setRefreshToken(credsData.refreshToken);
         forcetkClient.setUserAgentString(credsData.userAgent);
         
-        fetchStores();
         loadPosition();
+        fetchStores();
     }
 
 
@@ -139,12 +139,12 @@
 			<a href="#" data-role="button" class="ui-btn-right" id="link_logout"
 				data-theme="c">Logout</a>
 		</div>
-		<div data-role="content" data-theme="c">
+		<div data-role="content" data-theme="c" style="padding: 5px;">
 			<div class="content-primary">
 				<span id="temp_data"></span>
 				<div class="ui-grid-a" style="width: 100%;">
 					<div class="ui-block-a" style="width: 40%;">
-						<div data-role="navbar">
+						<div data-role="navbar" data-iscroll-fixed>
 							<ul>
 								<li id="cached_stores"><a href="#" class="ui-btn-active ui-state-persist">Cached stores</a></li>
 								<li id="search_stores"><a href="#">Search Stores</a></li>
@@ -156,18 +156,18 @@
 						</ul>
 						</div>
 						<div id="search_stores_div" style="display:none;">
-							<input type="search" name="search-mini" id="search_stores_input" value="" data-mini="true" />
+							<input type="search" name="search-mini" id="search_stores_input" value="" data-mini="true" data-iscroll-fixed />
 							<div id="stores_scroll_div" data-iscroll>
 								<ul data-role="listview" data-divider-theme="c" data-inset="true"
-									id="ul_searched_stores">
+									id="ul_searched_stores" style="margin: 0 0 0.2em 0">
 								</ul>
 							</div>
 						</div>
 					</div>
 					<div class="ui-block-b" style="width: 60%;">
-						<div id="geo-map" style="margin: 0.5em">
+						<div id="geo-map" style="margin-left: 0.3em">
 							<img
-								src="http://maps.google.com/maps/api/staticmap?center=37.4419,-94.1419&zoom=3&size=680x278&sensor=true" />
+								src="http://maps.google.com/maps/api/staticmap?center=37.4419,-94.1419&zoom=3&size=400x200&sensor=true" />
 						</div>
 					</div>
 				</div>

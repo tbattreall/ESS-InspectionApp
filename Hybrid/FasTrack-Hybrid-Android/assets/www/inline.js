@@ -20,7 +20,9 @@ function regLinkClickHandlers() {
         $j('#cached_stores_div').hide('fast', function() {
         	$j('#cached_stores').css("");
             $j('#search_stores').css("ui-btn-active ui-state-persist");
-        	$j('#search_stores_div').show('30');
+        	$j('#search_stores_div').show('30',function() {
+        		$j('#stores_scroll_div').iscrollview("refresh");
+        	});
          });
     });
     $j('#search_stores_input').bind("change", function(event, ui) {
@@ -78,7 +80,8 @@ function loadPosition(){
 	          mapTypeId: google.maps.MapTypeId.ROADMAP
 	        });
 	map.getDiv().style.border =  '1px solid #ccc';
-	map.getDiv().style.height = "29em";
+	var height = $(window).height();
+	map.getDiv().style.height = height - 60 + "px";
 
 	navigator.geolocation.getCurrentPosition(showPosition);
 }
@@ -128,6 +131,7 @@ function addCachedStore(number){
     var newLi = $j('<li id="li_store_'+ number +'"><a href="#">' + "Store " + number + '</a><a href="#popupRemoveStoreDialog" data-position-to="window" data-rel="popup" data-icon="delete" onclick=\'$j("#temp_data").data("store","'+number+'")\'></a></li>');
     $j("#ul_cached_stores").append(newLi);
     $j("#ul_cached_stores").listview('refresh');
+    $j('#stores_scroll_div').iscrollview("refresh");
 }
 
 function removeCachedStore(){
