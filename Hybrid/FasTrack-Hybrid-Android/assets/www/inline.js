@@ -154,7 +154,7 @@ function addStoreInMap(store){
 function addCachedStore(number){
     if(number=="null") { alert("No number"); return; }
     if(document.getElementById("li_store_"+number)!=null) return;
-    var newLi = $j('<li id="li_store_'+ number +'"><a href="#">' + "Store " + number + '</a><a href="#popupRemoveStoreDialog" data-position-to="window" data-rel="popup" data-icon="delete" onclick=\'$j("#temp_data").data("store","'+number+'")\'></a></li>');
+    var newLi = $j('<li id="li_store_'+ number +'" onclick=\'$j("#temp_data").data("store","'+number+'")\'><a href="pages/sitevisit/buildings.html">' + "Store " + number + '</a><a href="#popupRemoveStoreDialog" data-position-to="window" data-rel="popup" data-icon="delete"></a></li>');
     $j("#ul_cached_stores").append(newLi);
     $j("#ul_cached_stores").listview('refresh');
     $j('#stores_scroll_div').iscrollview("refresh");

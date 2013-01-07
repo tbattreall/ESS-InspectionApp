@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, maximum-scale=1.0; user-scalable=no" />
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+
+  </head>
+<body>
+	<!-- Home -->
+	<div data-role="page" data-theme="c">
+		<div data-role="header" data-position="fixed" data-theme="c">
+			<a href="#" data-role="button" data-icon="back" class="ui-btn-left" data-rel="back" data-iconpos="notext" 
+				data-theme="c">Back</a>
+			<h1 id="buildings_title"></h1>
+			<a href="#" data-role="button" class="ui-btn-right" id="link_logout"
+				data-theme="c">Logout</a>
+		</div>
+		<div data-role="content" data-theme="c" style="padding: 5px;">
+			<div class="content-primary">
+			<a href="#" data-role="button" data-icon="plus" data-inline="true" data-iscroll-fixed>Add a Building</a>
+			<div id="buildings_scroll_div" data-iscroll>
+				<ul data-role="listview" data-divider-theme="a" data-inset="true"
+					id="ul_buildings" style="margin: 0 0 0.2em 0">
+					<li data-role="list-divider"><table
+							style="width: 100%; margin-right: 50px;">
+							<tr>
+								<td width="25%">Building Name</td>
+								<td width="15%">Number</td>
+								<td width="15%">Building Type</td>
+								<td width="20%">Roof Type</td>
+								<td width="15%">Condition</td>
+								<td width="10%">Floors</td>
+							</tr>
+						</table></li>
+				</ul>
+				</div>
+			</div>
+		</div>
+		
+		<!-- load our app-specific code -->
+		<script type="text/javascript">
+		function regLinkClickHandlers() {
+    var $j = jQuery.noConflict();
+    var logToConsole = cordova.require("salesforce/util/logger").logToConsole;          
+    $j('#link_logout').click(function() {
+             logToConsole("link_logout clicked");
+             var sfOAuthPlugin = cordova.require("salesforce/plugin/oauth");
+             sfOAuthPlugin.logout();
+             });
+    
+}
+
+function fetchBuildings(){
+    var store_number = $j('#temp_data').data('store');
+    forcetkClient.query("SELECT Name, Roof_Type__c,of_Floors__c, Construction_Type__c FROM Building__c WHERE Name LIKE '"+store_number+"%'", onSuccessFetchBuildings, logError);
+}
+
+function onSuccessFetchBuildings(response){
+    var $j = jQuery.noConflict();
+    cordova.require("salesforce/util/logger").logToConsole("onSuccessFetchBuildings: received " + response.totalSize + " buildings");
+    
+    refreshListUI(response.records);
+    
+    cordova.require("salesforce/util/logger").logToConsole("onSuccessFetchBuildings: finish loading " + response.totalSize + " buildings");
+}
+
+function refreshListUI(records){
+    var list = "";
+    $j.each(records, function(i, item) {
+        var building_data = {
+                number: 'Which is this?',
+                name: item.Name,
+                b_type: item.Construction_Type__c,
+                r_type: item.Roof_Type__c,
+                condition: 'Which is this?',
+                floors: item.of_Floors__c
+              };
+         $j('#ul_buildings').append(ich.buildings_list_entry(building_data));
+        });
+    $j('#ul_buildings').listview("refresh");
+}
+
+/**
+* Error Received
+**/
+function logError(error) {
+    SFHybridApp.logToConsole("Error: " + JSON.stringify(error,null,'<br>'));
+}
+
+$j(document).bind("pageinit", function(event, data) {
+    ich.grabTemplates();
+//    var store_data = {
+//            number: $j('#temp_data').data('store'),
+//            name: 'name'
+//          };
+//    $j("#buildings_header").replaceWith(ich.title_stores(store_data).html());
+//    $j('#buildings_header').trigger('create');
+    regLinkClickHandlers();
+    fetchBuildings();
+});
+		</script>
+
+		<script id="title_stores" type="text/html">
+		<h1 style="text-align:left; margin-left:50px;">Store Number: {{ number }} Name: {{ name }} Security Code {{ code }}</h1>
+    	</script>
+
+		<script id="buildings_list_entry" type="text/html">
+		<li><a><table style="width: 100%;white-space: normal;">
+								<tr style="font-weight: normal;">
+									<td width="25%">{{ name }}</td>
+									<td width="15%">{{ number }}</td>
+									<td width="15%">{{ b_type }}</td>
+									<td width="20%">{{ r_type }}</td>
+									<td width="15%">{{ condition }}</td>
+									<td width="10%">{{ floors }}</td>
+								</tr>
+							</table></a></li>
+    	</script>
+	</div>
+</body>
+</html>
