@@ -17,18 +17,17 @@
 		</div>
 		<div data-role="content" data-theme="c" style="padding: 5px;">
 			<div class="content-primary">
-			<a href="#" data-role="button" data-icon="plus" data-inline="true" data-iscroll-fixed>Add a Building</a>
+			<a href="buildings_edit.html" onclick="$j('#temp_data').data('building_id',null)" data-role="button"data-icon="plus" data-inline="true" data-iscroll-fixed>Add a Building</a>
 			<div id="buildings_scroll_div" data-iscroll>
 				<ul data-role="listview" data-divider-theme="a" data-inset="true"
 					id="ul_buildings" style="margin: 0 0 0.2em 0">
 					<li data-role="list-divider"><table
 							style="width: 100%; margin-right: 50px;">
 							<tr>
-								<td width="25%">Building Name</td>
-								<td width="15%">Number</td>
-								<td width="15%">Building Type</td>
+								<td width="25%">Building Number</td>
+								<td width="20%">Building Type</td>
 								<td width="20%">Roof Type</td>
-								<td width="15%">Condition</td>
+								<td width="25%">Condition</td>
 								<td width="10%">Floors</td>
 							</tr>
 						</table></li>
@@ -52,7 +51,7 @@
 
 function fetchBuildings(){
     var store_number = $j('#temp_data').data('store');
-    forcetkClient.query("SELECT Name, Roof_Type__c,of_Floors__c, Construction_Type__c FROM Building__c WHERE Name LIKE '"+store_number+"%'", onSuccessFetchBuildings, logError);
+    forcetkClient.query("SELECT Id, Name, Roof_Type__c,of_Floors__c, Construction_Type__c, Condition__c FROM Building__c WHERE Name LIKE '"+store_number+"%'", onSuccessFetchBuildings, logError);
 }
 
 function onSuccessFetchBuildings(response){
@@ -65,14 +64,16 @@ function onSuccessFetchBuildings(response){
 }
 
 function refreshListUI(records){
-    var list = "";
+	var divider = $j('#ul_buildings').children()[0];
+	$j('#ul_buildings').empty();
+    $j('#ul_buildings').append(divider);
     $j.each(records, function(i, item) {
         var building_data = {
-                number: 'Which is this?',
+        		id: item.Id,
                 name: item.Name,
                 b_type: item.Construction_Type__c,
                 r_type: item.Roof_Type__c,
-                condition: 'Which is this?',
+                condition: item.Condition__c,
                 floors: item.of_Floors__c
               };
          $j('#ul_buildings').append(ich.buildings_list_entry(building_data));
@@ -97,6 +98,7 @@ $j(document).bind("pageinit", function(event, data) {
 //    $j('#buildings_header').trigger('create');
     regLinkClickHandlers();
     fetchBuildings();
+    $j(this).unbind(event);
 });
 		</script>
 
@@ -105,13 +107,12 @@ $j(document).bind("pageinit", function(event, data) {
     	</script>
 
 		<script id="buildings_list_entry" type="text/html">
-		<li><a><table style="width: 100%;white-space: normal;">
+		<li><a href="buildings_edit.html" onclick='$j("#temp_data").data("building_id","{{ id }}")'><table style="width: 100%;white-space: normal;">
 								<tr style="font-weight: normal;">
 									<td width="25%">{{ name }}</td>
-									<td width="15%">{{ number }}</td>
-									<td width="15%">{{ b_type }}</td>
+									<td width="20%">{{ b_type }}</td>
 									<td width="20%">{{ r_type }}</td>
-									<td width="15%">{{ condition }}</td>
+									<td width="25%">{{ condition }}</td>
 									<td width="10%">{{ floors }}</td>
 								</tr>
 							</table></a></li>

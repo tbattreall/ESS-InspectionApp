@@ -65,7 +65,7 @@ function onStoreSoupExist(exist){
     if(exist){
         updateStoreList();
     } else {
-        forcetkClient.query("SELECT Site_Number__c,Name,geo_latitude__c,geo_longitude__c,Direct_Dial_Phone__c,Site_Address_Line1__c,Site_City__c,Site_State_Province__c,Site_Zip_Code__c FROM Site__c WHERE Site_Number__c<>null and (geo_latitude__c>0 or geo_longitude__c>0) LIMIT 200", onSuccessFetchStores, onErrorSfdc);
+        forcetkClient.query("SELECT Id,Site_Number__c,Name,geo_latitude__c,geo_longitude__c,Direct_Dial_Phone__c,Site_Address_Line1__c,Site_City__c,Site_State_Province__c,Site_Zip_Code__c FROM Site__c WHERE Site_Number__c<>null and (geo_latitude__c>0 or geo_longitude__c>0) LIMIT 200", onSuccessFetchStores, onErrorSfdc);
         regOfflineSoups();
     }
 }
@@ -135,7 +135,8 @@ function addStoreInMap(store){
     
     var info_data = {
             name: store.Name,
-            number: store.Site_Number__c
+            number: store.Site_Number__c,
+            id: store.Id
           };
 
     // Here's all the magic.
@@ -151,10 +152,16 @@ function addStoreInMap(store){
     });
 }
 
-function addCachedStore(number){
+function addCachedStore(number, id){
     if(number=="null") { alert("No number"); return; }
     if(document.getElementById("li_store_"+number)!=null) return;
-    var newLi = $j('<li id="li_store_'+ number +'" onclick=\'$j("#temp_data").data("store","'+number+'")\'><a href="pages/sitevisit/buildings.html">' + "Store " + number + '</a><a href="#popupRemoveStoreDialog" data-position-to="window" data-rel="popup" data-icon="delete"></a></li>');
+    var entry_data = {
+            number: number,
+            id: id
+          };
+
+    // Here's all the magic.
+    var newLi = ich.cacheStoreEntry(entry_data);
     $j("#ul_cached_stores").append(newLi);
     $j("#ul_cached_stores").listview('refresh');
     $j('#stores_scroll_div').iscrollview("refresh");
@@ -183,7 +190,7 @@ function refreshListUI(cursor){
 	});
     $j.each(curPageEntries, function(i, item) {
         addStoreInMap(item);
-        list += '<li><a href="#" onclick="goToLocation(\''+item.geo_latitude__c+'\',\''+item.geo_longitude__c+'\')">' + item.Site_Number__c +' '+ item.Name + '</a><a href="#" data-icon="add" onclick="addCachedStore(\''+item.Site_Number__c+'\')">Cache</a></li>';
+        list += '<li><a href="#" onclick="goToLocation(\''+item.geo_latitude__c+'\',\''+item.geo_longitude__c+'\')">' + item.Site_Number__c +' '+ item.Name + '</a><a href="#" data-icon="add" onclick="addCachedStore(\''+item.Site_Number__c+'\',\''+item.Id+'\')">Cache</a></li>';
         });
     $j('#ul_searched_stores').empty().append( list ).listview("refresh");
 }

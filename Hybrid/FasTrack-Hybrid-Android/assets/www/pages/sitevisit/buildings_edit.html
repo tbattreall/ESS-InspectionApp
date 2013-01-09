@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, maximum-scale=1.0; user-scalable=no" />
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+
+  </head>
+<body>
+	
+    <div data-role="page" id="buildings_edit_page">
+		<div data-role="header" class="ui-corner-top">
+			<h1>Buildings</h1>
+		</div>
+		<div data-role="content">
+			<div class="ui-grid-solo">
+				<div class="ui-block-a">
+					Asset Information
+				</div>
+			</div>
+			<div class="ui-grid-a" style="margin: 0.5em; width: 100%;">
+				<div class="ui-block-a" style="margin-right: 2px;">
+					<label for="building_name_input">Building Name:</label> 
+					<input type="text" name="name" id="building_name_input" data-mini="true" />
+				</div>
+				<div class="ui-block-b">
+					<label for="building_floors_input">Number of Floors:</label> 
+					<input type="text" name="name" id="building_floors_input" data-mini="true" />
+				</div>
+				<div class="ui-block-a" style="margin-right: 2px;">
+					<label for="building_number_input">Building Number:</label> 
+					<input type="text" name="name" id="building_number_input" data-mini="true" />
+				</div>
+				<div class="ui-block-b">
+					<label for="building_roof_input">Roof Type:</label> 
+					<input type="text" name="name" id="building_roof_input" data-mini="true" />
+				</div>
+				<div class="ui-block-a" style="margin-right: 2px;">
+					<label for="building_type_input">Building Type:</label> 
+					<input type="text" name="name" id="building_type_input" data-mini="true" />
+				</div>
+				<div class="ui-block-b">
+					<label for="building_condition_input">Condition:</label> 
+					<input type="text" name="name" id="building_condition_input" data-mini="true" />
+				</div>
+				<div class="ui-block-a" style="margin-right: 2px;">
+					<label for="building_climate_input">Climate Controlled:</label> 
+					<input type="text" name="name" id="building_climate_input" data-mini="true" />
+				</div>
+				<div class="ui-block-b">
+					<label for="building_year_input">Year of Construction:</label> 
+					<input type="text" name="name" id="building_year_input" data-mini="true" />
+				</div>
+			</div>
+
+			<div class="ui-grid-solo">
+				<div class="ui-block-a">
+					<div data-role="fieldcontain">
+					<label for="building_description_input">Description:</label>
+						<textarea name="textarea" id="building_description_input"></textarea>
+					</div>
+				</div>
+			</div>
+			<div class="ui-grid-a">
+				<div class="ui-block-a">
+					<a data-role="button" data-rel="back" data-theme="c">Cancel</a>
+				</div>
+				<div class="ui-block-b">
+					<a href="#" data-role="button" data-rel="back" data-direction="reverse"
+						onclick="upsertBuilding()" data-transition="flow"
+						data-theme="c">Save</a>
+				</div>
+			</div>
+		</div>
+		
+		<script type="text/javascript">
+		function upsertBuilding(){
+		 	var building_data = {
+		                Name: $j('#building_name_input').val(),
+		                Construction_Type__c: $j('#building_type_input').val(),
+		                of_Floors__c: $j('#building_floors_input').val(),
+		                Roof_Type__c: $j('#building_roof_input').val(),
+		                Construction_Type__c: $j('#building_type_input').val(),
+		                Condition__c: $j('#building_condition_input').val(),
+		     //           Construction_Date__c: $j('#building_year_input').val(),
+		                Description__c: $j('#building_description_input').val(),
+		                Climate_Controlled__c: $j('#building_climate_input').val()
+		              };
+		    var id = $j('#temp_data').data('building_id');
+			if (typeof id === 'undefined' || id == null) {
+				building_data.Store__c = $j("#temp_data").data("store_id");
+				forcetkClient.create("Building__c",building_data, onSuccessUpsertBuildings, logError);
+			} else {
+				forcetkClient.update("Building__c",id,building_data,onSuccessUpsertBuildings,logError);
+			}
+		}
+		
+		function onSuccessUpsertBuildings(response){
+			$j.mobile.changePage( "buildings.html", {
+				transition: "pop",
+				reverse: false,
+				changeHash: false
+			});
+		}
+		
+		function onSuccessRetrieveBuildings(response){
+			SFHybridApp.logToConsole("onSuccessRetrieveBuildings executed");
+			$j("#building_name_input").val(response.Name);
+			$j("#building_floors_input").val(response.of_Floors__c);
+			$j("#building_roof_input").val(response.Roof_Type__c);
+			$j("#building_type_input").val(response.Construction_Type__c);
+			$j("#building_condition_input").val(response.Condition__c);
+			$j("#building_climate_input").val(response.Climate_Controlled__c);
+			$j("#building_year_input").val(response.Construction_Date__c);
+			$j("#building_description_input").val(response.Description__c);
+		}
+		
+		function clearAllBuildingsInputs(){
+			var inputs = $j('#buildings_edit_page').find(':input');
+			$j.each(inputs, function(i, input) {
+				input.value = "";
+        	});
+        	$j("#building_name_input").val($j('#temp_data').data('store') + "-");
+		}
+		
+		$j(document).bind("pageinit", function(event, data) {
+			clearAllBuildingsInputs();
+			var id = $j('#temp_data').data('building_id');
+			if (!(typeof id === 'undefined' || id == null)) {
+				forcetkClient.retrieve("Building__c",id,onSuccessRetrieveBuildings, logError);
+			}
+			$j(this).unbind(event);
+		});
+</script>
+	</div>
+</body>
+</html>
