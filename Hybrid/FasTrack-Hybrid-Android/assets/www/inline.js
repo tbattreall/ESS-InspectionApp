@@ -30,7 +30,11 @@ function regLinkClickHandlers() {
     });
 }
 
-var STORES_SOUP_NAME = "ct__storesSoup";
+var SOUP_NAMES = {
+	    STORES : "ct__storesSoup",
+	    BUILDING_META : "Building__c_meta",
+	    BLUE : 2
+	}
 
 function regOfflineSoups() {
 
@@ -46,28 +50,46 @@ function regOfflineSoups() {
         type : "string"
     } ];
     
-//    navigator.smartstore.removeSoup(STORES_SOUP_NAME, function(){
+    var nameIndex = [ {
+        path : "Name",
+        type : "string"
+    }];
+    
+//    navigator.smartstore.removeSoup(SOUP_NAMES.STORES, function(){
 //        SFHybridApp.logToConsole("Soup Removed: "+record);
 //        }, logError);
 
-    navigator.smartstore.registerSoup(STORES_SOUP_NAME, indexesStores,
+    navigator.smartstore.registerSoup(SOUP_NAMES.STORES, indexesStores,
             function() {
-                SFHybridApp.logToConsole(STORES_SOUP_NAME + " Soup Registered")
+                SFHybridApp.logToConsole(SOUP_NAMES.STORES + " Soup Registered")
             }, logError);
 
+    navigator.smartstore.registerSoup(SOUP_NAMES.BUILDING_META, nameIndex,
+            function() {
+                SFHybridApp.logToConsole(SOUP_NAMES.BUILDING_META + " Soup Registered")
+            }, logError);
 }
 
 function fetchStores(){
-    navigator.smartstore.soupExists(STORES_SOUP_NAME, onStoreSoupExist, logError);
+    navigator.smartstore.soupExists(SOUP_NAMES.STORES, onStoreSoupExist, logError);
 }
 
 function onStoreSoupExist(exist){
     if(exist){
         updateStoreList();
     } else {
-        forcetkClient.query("SELECT Id,Site_Number__c,Name,geo_latitude__c,geo_longitude__c,Direct_Dial_Phone__c,Site_Address_Line1__c,Site_City__c,Site_State_Province__c,Site_Zip_Code__c FROM Site__c WHERE Site_Number__c<>null and (geo_latitude__c>0 or geo_longitude__c>0) LIMIT 200", onSuccessFetchStores, onErrorSfdc);
-        regOfflineSoups();
+    	regOfflineSoups();
+    	updateOfflineData();
     }
+}
+
+function updateOfflineData(){
+	forcetkClient.query("SELECT Id,Site_Number__c,Name,geo_latitude__c,geo_longitude__c,Direct_Dial_Phone__c,Site_Address_Line1__c,Site_City__c,Site_State_Province__c,Site_Zip_Code__c FROM Site__c WHERE Site_Number__c<>null and (geo_latitude__c>0 or geo_longitude__c>0) LIMIT 200", onSuccessFetchStores, onErrorSfdc);
+	forcetkClient.describe("Building__c", function (response){
+		navigator.smartstore.upsertSoupEntries(SOUP_NAMES.BUILDING_META,response.fields, function() {
+			SFHybridApp.logToConsole(SOUP_NAMES.BUILDING_META + " updated");
+	    }, logError);
+	},logError);
 }
 
 var map = null;
@@ -95,6 +117,20 @@ function showCurrentPosition(position) {
 	currentCoordinate = position.coords;
 	fetchStores();
 	goToLocation(position.coords.latitude, position.coords.longitude);
+	var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+    var marker = new google.maps.Marker({
+      position: latLng,
+      title: "Current Location",
+      map: map
+    });
+    
+    var infowindow = new google.maps.InfoWindow({
+        content: "<p>Your Location</p>"
+    });
+    
+    google.maps.event.addListener(marker, 'click', function() {
+        infowindow.open(map,marker);
+    });
 }
 
 function distanceToCurrentLocation(lat1,lon1){
@@ -176,7 +212,7 @@ function onSuccessFetchStores(response){
     var $j = jQuery.noConflict();
     cordova.require("salesforce/util/logger").logToConsole("onSuccessSfdcContacts: received " + response.totalSize + " stores");
     
-    navigator.smartstore.upsertSoupEntries(STORES_SOUP_NAME,response.records, updateStoreList, logError);
+    navigator.smartstore.upsertSoupEntries(SOUP_NAMES.STORES,response.records, updateStoreList, logError);
     
     cordova.require("salesforce/util/logger").logToConsole("onSuccessSfdcContacts: finish loading " + response.totalSize + " stores");
 }
@@ -200,7 +236,7 @@ function updateStoreList(){
     var search = $j('#search_stores_input').val();
     var querySpec = navigator.smartstore.buildLikeQuerySpec("Name", "%"+search+"%", null, 20);
     
-    navigator.smartstore.querySoup(STORES_SOUP_NAME, querySpec, refreshListUI, logError);
+    navigator.smartstore.querySoup(SOUP_NAMES.STORES, querySpec, refreshListUI, logError);
 }
 
 /**

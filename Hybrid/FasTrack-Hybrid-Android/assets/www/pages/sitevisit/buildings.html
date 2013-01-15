@@ -12,7 +12,7 @@
 			<a href="#" data-role="button" data-icon="back" class="ui-btn-left" data-rel="back" data-iconpos="notext" 
 				data-theme="c">Back</a>
 			<h1 id="buildings_title"></h1>
-			<a href="#" data-role="button" class="ui-btn-right" id="link_logout"
+			<a href="#" data-role="button" class="ui-btn-right" id="link_buildings_logout"
 				data-theme="c">Logout</a>
 		</div>
 		<div data-role="content" data-theme="c" style="padding: 5px;">
@@ -40,9 +40,7 @@
 		<script type="text/javascript">
 		function regLinkClickHandlers() {
     var $j = jQuery.noConflict();
-    var logToConsole = cordova.require("salesforce/util/logger").logToConsole;          
-    $j('#link_logout').click(function() {
-             logToConsole("link_logout clicked");
+    $j('#link_buildings_logout').click(function() {
              var sfOAuthPlugin = cordova.require("salesforce/plugin/oauth");
              sfOAuthPlugin.logout();
              });
@@ -89,7 +87,6 @@ function logError(error) {
 }
 
 $j(document).bind("pageinit", function(event, data) {
-    ich.grabTemplates();
 //    var store_data = {
 //            number: $j('#temp_data').data('store'),
 //            name: 'name'
@@ -102,21 +99,6 @@ $j(document).bind("pageinit", function(event, data) {
 });
 		</script>
 
-		<script id="title_stores" type="text/html">
-		<h1 style="text-align:left; margin-left:50px;">Store Number: {{ number }} Name: {{ name }} Security Code {{ code }}</h1>
-    	</script>
-
-		<script id="buildings_list_entry" type="text/html">
-		<li><a href="buildings_edit.html" onclick='$j("#temp_data").data("building_id","{{ id }}")'><table style="width: 100%;white-space: normal;">
-								<tr style="font-weight: normal;">
-									<td width="25%">{{ name }}</td>
-									<td width="20%">{{ b_type }}</td>
-									<td width="20%">{{ r_type }}</td>
-									<td width="25%">{{ condition }}</td>
-									<td width="10%">{{ floors }}</td>
-								</tr>
-							</table></a></li>
-    	</script>
 	</div>
 </body>
 </html>

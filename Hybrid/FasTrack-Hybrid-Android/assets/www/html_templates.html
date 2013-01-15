@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<body>
+	<script id="mapInfoWindow" type="text/html">
+		<div>
+			<p>{{ number }} {{ name }}</p>
+		</div>
+    	<div>
+   			<a data-theme="c" data-shadow="true" data-role="button" data-inline="true" data-mini="true" onclick="addCachedStore('{{ number }}', '{{ id }}')">Add to Cache</a>
+    	</div>
+    </script>
+
+	<script id="cacheStoreEntry" type="text/html">
+		<li id="li_store_{{ number }}" onclick='$j("#temp_data").data("store","{{ number }}");$j("#temp_data").data("store_id","{{ id }}");'>
+			<a href="pages/sitevisit/buildings.html">Store {{ number }}</a>
+			<a href="#popupRemoveStoreDialog" data-position-to="window" data-rel="popup" data-icon="delete"></a>
+		</li>
+    </script>
+
+	<script id="title_stores" type="text/html">
+		<h1 style="text-align:left; margin-left:50px;">Store Number: {{ number }} Name: {{ name }} Security Code {{ code }}</h1>
+    </script>
+
+	<script id="buildings_list_entry" type="text/html">
+		<li><a href="buildings_edit.html" onclick='$j("#temp_data").data("building_id","{{ id }}")'><table style="width: 100%;white-space: normal;">
+								<tr style="font-weight: normal;">
+									<td width="25%">{{ name }}</td>
+									<td width="20%">{{ b_type }}</td>
+									<td width="20%">{{ r_type }}</td>
+									<td width="25%">{{ condition }}</td>
+									<td width="10%">{{ floors }}</td>
+								</tr>
+							</table></a></li>
+    </script>
+</body>
+</html>

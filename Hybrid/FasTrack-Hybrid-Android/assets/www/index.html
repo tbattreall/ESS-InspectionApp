@@ -49,35 +49,19 @@
     
     // The version of the REST API you wish to use in your app.
     var apiVersion = "v23.0";
-
-	// If you want to prevent dragging, uncomment this section
-	/*
-	function preventBehavior(e) 
-	{ 
-      e.preventDefault(); 
-    };
-	document.addEventListener("touchmove", preventBehavior, false);
-	*/
-	
-	/* If you are supporting your own protocol, the var invokeString will contain any arguments to the app launch.
-	see http://iphonedevelopertips.com/cocoa/launching-your-own-application-via-a-custom-url-scheme.html
-	for more details -jm */
-	/*
-	function handleOpenURL(url)
-	{
-		// do something with the url passed in.
-	}
-	*/
 	
     var forcetkClient;
     var debugMode = true;
     var logToConsole = cordova.require("salesforce/util/logger").logToConsole;
 
     jQuery(document).ready(function() {
+    	//fetch the html templates
+    	$j('#html_templates').load('html_templates.html', function() {
+			ich.grabTemplates();
+		});
         //Add event listeners and so forth here
         logToConsole("onLoad: jquery ready");
 		document.addEventListener("deviceready", onDeviceReady,false);
-
     });
 
     // When this function is called, Cordova has been initialized and is ready to roll 
@@ -107,7 +91,6 @@
         forcetkClient.setUserAgentString(credsData.userAgent);
         
         loadPosition();
-        fetchStores();
     }
 
 
@@ -116,29 +99,13 @@
     }
         
     </script>
-        
-        
-    <script id="mapInfoWindow" type="text/html">
-		<div>
-			<p>{{ number }} {{ name }}</p>
-		</div>
-    	<div>
-   			<a data-theme="c" data-shadow="true" data-role="button" data-inline="true" data-mini="true" onclick="addCachedStore('{{ number }}', '{{ id }}')">Add to Cache</a>
-    	</div>
-    </script>
-    
-    <script id="cacheStoreEntry" type="text/html">
-		<li id="li_store_{{ number }}" onclick='$j("#temp_data").data("store","{{ number }}");$j("#temp_data").data("store_id","{{ id }}");'>
-			<a href="pages/sitevisit/buildings.html">Store {{ number }}</a>
-			<a href="#popupRemoveStoreDialog" data-position-to="window" data-rel="popup" data-icon="delete"></a>
-		</li>
-    </script>
     
 	<!-- load our app-specific code -->
     <script src="inline.js"></script>       
 
   </head>
 <body>
+	<span id="html_templates"></span>
 	<!-- Home -->
 	<div data-role="page" id="page1" data-theme="c">
 		<div data-role="header" data-position="fixed" data-theme="c">
