@@ -33,7 +33,6 @@ import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -44,9 +43,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.salesforce.androidsdk.app.ForceApp;
 import com.salesforce.androidsdk.rest.ClientManager.LoginOptions;
 import com.salesforce.androidsdk.rest.RestClient;
-import com.salesforce.androidsdk.rest.RestClient.AsyncRequestCallback;
-import com.salesforce.androidsdk.rest.RestRequest;
-import com.salesforce.androidsdk.rest.RestResponse;
 import com.salesforce.androidsdk.store.SmartStore;
 import com.salesforce.androidsdk.store.SmartStore.IndexSpec;
 import com.salesforce.androidsdk.store.SmartStore.Order;
@@ -54,16 +50,18 @@ import com.salesforce.androidsdk.store.SmartStore.QuerySpec;
 import com.salesforce.androidsdk.store.SmartStore.Type;
 import com.salesforce.androidsdk.ui.NativeMainActivity;
 import com.vertiba.fastrack.Constants.Preferences;
+import com.vertiba.fastrack.salesforce.SalesforceManager;
+import com.vertiba.fastrack.salesforce.SalesforceManager.RequestAndStoreCallback;
 import com.vertiba.fastrack.util.PreferencesManager;
 
 public class SitesActivity extends NativeMainActivity{
 
-	private RestClient client;
     private ArrayAdapter<SiteModel> listAdapter;
     private ArrayAdapter<String> favoriteAdapter;
     private GoogleMap mMap;
 	private SmartStore smartStore;
 	
+	private static final String TAG = "Sites";
 	private static final String STORES_SOUP_NAME = "Sites";
 	
 	@Override
@@ -114,7 +112,7 @@ public class SitesActivity extends NativeMainActivity{
 	@Override
 	public void onResume(RestClient client) {
         // Keeping reference to rest client
-        this.client = client; 
+        SalesforceManager.setClient(client); 
 
 		// Show everything
 		findViewById(R.id.root).setVisibility(View.VISIBLE);
@@ -143,7 +141,18 @@ public class SitesActivity extends NativeMainActivity{
 	 * @throws UnsupportedEncodingException 
 	 */
 	public void fetchStores() throws UnsupportedEncodingException {
-		sendRequest("SELECT Site_Number__c,Name,geo_latitude__c,geo_longitude__c,Direct_Dial_Phone__c,Site_Address_Line1__c,Site_City__c,Site_State_Province__c,Site_Zip_Code__c FROM Site__c");
+        SalesforceManager.sendRequestAndStoreResponse(this, "SELECT Id,Site_Number__c,Name,geo_latitude__c,geo_longitude__c,Direct_Dial_Phone__c,Site_Address_Line1__c,Site_City__c,Site_State_Province__c,Site_Zip_Code__c FROM Site__c"
+        		, STORES_SOUP_NAME, new IndexSpec[]{new IndexSpec("Site_Number__c",Type.string)}, new RequestAndStoreCallback() {
+					
+					@Override
+					public void onComplete(JSONObject asJSONObject) {
+						try {
+							populateStoreList(asJSONObject);
+						} catch (JSONException e) {
+							Log.e(TAG, e.getMessage());
+						}
+					}
+				});
 	}
 	
 	private void setUpMapIfNeeded() {
@@ -183,32 +192,6 @@ public class SitesActivity extends NativeMainActivity{
 			mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
 					SiteModel.currentPosition, 12));
 		}
-	}
-	
-	private void sendRequest(String soql) throws UnsupportedEncodingException {
-		RestRequest restRequest = RestRequest.getRequestForQuery(getString(R.string.api_version), soql);
-		client.sendAsync(restRequest, new AsyncRequestCallback() {
-			@Override
-			public void onSuccess(RestRequest request, RestResponse result) {
-				try {
-					
-					JSONObject asJSONObject = result.asJSONObject();
-					IndexSpec[] indexes = new IndexSpec[]{new IndexSpec("Site_Number__c",Type.string)};
-					smartStore.registerSoup(STORES_SOUP_NAME, indexes );
-					smartStore.upsert(STORES_SOUP_NAME, asJSONObject);
-					populateStoreList(asJSONObject);
-				} catch (Exception e) {
-					onError(e);
-				}
-			}
-			
-			@Override
-			public void onError(Exception exception) {
-                Toast.makeText(SitesActivity.this,
-                			   SitesActivity.this.getString(ForceApp.APP.getSalesforceR().stringGenericError(), exception.toString()),
-                               Toast.LENGTH_LONG).show();
-			}
-		});
 	}
 	
 	private void populateFavoriteList() {
@@ -341,13 +324,7 @@ public class SitesActivity extends NativeMainActivity{
 				
 				@Override
 				public void onClick(View arg0) {
-					SharedPreferences preferences = PreferencesManager.getSharedPreferences(SitesActivity.this);
-					Set<String> set = preferences.getStringSet(Preferences.CACHED_STORES, new HashSet<String>());
-					if (!set.contains(item.number)) {
-						Set<String> newSet = new HashSet<String>(set);
-						newSet.add(item.number);
-						PreferencesManager.setPreference(Preferences.CACHED_STORES, newSet, SitesActivity.this);
-					}
+					addCacheStore(item);
 					populateFavoriteList();
 				}
 			});
@@ -355,8 +332,20 @@ public class SitesActivity extends NativeMainActivity{
 		}
 	}
 	
+	private void addCacheStore(SiteModel item){
+		SharedPreferences preferences = PreferencesManager.getSharedPreferences(SitesActivity.this);
+		Set<String> set = preferences.getStringSet(Preferences.CACHED_STORES, new HashSet<String>());
+		if (!set.contains(item.number)) {
+			Set<String> newSet = new HashSet<String>(set);
+			newSet.add(item.number);
+			PreferencesManager.setPreference(Preferences.CACHED_STORES, newSet, SitesActivity.this);
+			//TODO Cache all the necessary info from salesforce for this particular store
+		}
+	}
+	
 	private static class SiteModel implements Comparable<SiteModel>{
 		static LatLng currentPosition;
+		String id;
 		String number;
 		String name;
 		LatLng position;
@@ -368,6 +357,7 @@ public class SitesActivity extends NativeMainActivity{
 		String zipCode;
 		
 		public SiteModel(JSONObject siteJson) throws JSONException {
+			id = siteJson.getString("Id");
 			number = siteJson.getString("Site_Number__c");
 			name = siteJson.getString("Name");
 			phone = siteJson.getString("Direct_Dial_Phone__c");

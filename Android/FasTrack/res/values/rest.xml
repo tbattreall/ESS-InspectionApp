@@ -2,6 +2,6 @@
 <resources>
 	<string name="account_type">com.vertiba.fastrack.login</string>
 	<string name="oauth_callback_url">sfdc://success</string>
-	<string name="oauth_client_id">3MVG9sLbBxQYwWqsQIlaWv6PXOkFEWk7979pP.t3GVImQUBZkgaAHb0p5tHD3f5dxU2AAuEEYVLyC3MPd5Hhq</string>
+	<string name="oauth_client_id">3MVG9MHOv_bskkhSjQrB2E9kniPnkRSXItFs.gsSjrcaqS8RkK50RG2rwUio6.j3MBsnrHPAUEyNImRp1i.tL</string>
 	<string name="api_version">v23.0</string>
 </resources>
