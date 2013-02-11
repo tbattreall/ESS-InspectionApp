@@ -6,10 +6,10 @@ import android.content.ContentValues;
 import com.vertiba.fastrack.db.DBConstants.Building;
 import com.vertiba.fastrack.db.DBConstants.State;
 
-public class GreeAnalyticsDBProxy {
+public class DBProxy {
 	
 	public static void initDatabase(Activity activity){
-		GreeAnalyticsDBProvider.initInstance(activity);
+		DBProvider.initInstance(activity);
 	}
 	
 	public static void addBuilding(String Id, String condition, String constructionType, String name, String ofFloors) {
@@ -21,7 +21,7 @@ public class GreeAnalyticsDBProxy {
 		initialValues.put(Building.COLUMN_ID, Id);
 		initialValues.put(Building.COLUMN_ROOF_TYPE, Id);
 		initialValues.put(Building.COLUMN_STATE, State.New.toString());
-		GreeAnalyticsDBProvider.getInstance().insert(initialValues, Building.TABLE_NAME );
+		DBProvider.getInstance().insert(initialValues, Building.TABLE_NAME );
 	}
 
 }

@@ -13,7 +13,7 @@ import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
 
-public class GreeAnalyticsDBProvider {
+public class DBProvider {
 	
 	private static final String TAG = "DBProvider";
 	
@@ -25,20 +25,20 @@ public class GreeAnalyticsDBProvider {
 	// Handle to a new DatabaseHelper.
 	private DatabaseHelper mOpenHelper;
 
-	protected GreeAnalyticsDBProvider(Context context) {
+	protected DBProvider(Context context) {
 		// Creates a new helper object.
 		mOpenHelper = new DatabaseHelper(context);
 	}
 	
-	private static GreeAnalyticsDBProvider instance;
+	private static DBProvider instance;
 	
 	public static void initInstance(Context context) {
 		if (instance == null) {
-			instance = new GreeAnalyticsDBProvider(context);
+			instance = new DBProvider(context);
 		}
 	}
 	
-	public static GreeAnalyticsDBProvider getInstance(){
+	public static DBProvider getInstance(){
 		return instance;
 	}
 	
@@ -233,11 +233,11 @@ public class GreeAnalyticsDBProvider {
 	}
 	
 	//TEST PORPUSE ONLY
-	public static void setInstance(GreeAnalyticsDBProvider newInstance){
-		GreeAnalyticsDBProvider.instance = newInstance;
+	public static void setInstance(DBProvider newInstance){
+		DBProvider.instance = newInstance;
 	}
 	public static void resetInstance(){
-		GreeAnalyticsDBProvider.instance = null;
+		DBProvider.instance = null;
 	}
 	public void setDataBaseHelper(DatabaseHelper dbHelper){
 		this.mOpenHelper = dbHelper;
